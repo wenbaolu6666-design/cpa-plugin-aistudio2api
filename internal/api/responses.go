@@ -920,7 +920,11 @@ func responsesContents(raw json.RawMessage) ([]aistudio.Content, []string, error
 		if item.Namespace != "" {
 			item.Name = item.Namespace + "." + item.Name
 		}
-		call := aistudio.FunctionCall{ID: item.CallID, Name: item.Name, ThoughtSignature: pendingSignature}
+		callID := item.CallID
+		if callID == "" {
+			callID = item.ID
+		}
+		call := aistudio.FunctionCall{ID: callID, Name: item.Name, ThoughtSignature: pendingSignature}
 		switch item.Type {
 		case "", "message":
 			pendingSignature = ""
@@ -981,6 +985,21 @@ func responsesContents(raw json.RawMessage) ([]aistudio.Content, []string, error
 			if item.CallID == "" {
 				item.CallID = item.ID
 			}
+			name := item.Name
+			switch item.Type {
+			case "local_shell_call_output":
+				if name == "" {
+					name = "local_shell"
+				}
+			case "shell_call_output":
+				if name == "" {
+					name = "shell"
+				}
+			case "apply_patch_call_output":
+				if name == "" {
+					name = "apply_patch"
+				}
+			}
 			if item.Type == "apply_patch_call_output" {
 				item.Output, _ = json.Marshal(map[string]any{"status": item.Status, "output": rawJSONValue(item.Output, nil)})
 			}
@@ -989,7 +1008,7 @@ func responsesContents(raw json.RawMessage) ([]aistudio.Content, []string, error
 				return nil, nil, fmt.Errorf("%s: %w", item.Type, err)
 			}
 			contents = append(contents, aistudio.Content{Role: aistudio.RoleTool, Parts: append([]aistudio.Part{{FunctionResult: &aistudio.FunctionResult{
-				ID: item.CallID, Content: output,
+				ID: item.CallID, Name: name, Content: output,
 			}}}, media...)})
 			continue
 		case "reasoning":
