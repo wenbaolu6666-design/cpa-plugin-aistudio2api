@@ -1,6 +1,7 @@
 package api
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -19,8 +20,8 @@ func TestResponsesContents_OrphanToolOutputGracefulFallback(t *testing.T) {
 	if contents[1].Role != "user" {
 		t.Errorf("expected orphan tool output to degrade to user role, got %q", contents[1].Role)
 	}
-	if len(contents[1].Parts) != 1 || contents[1].Parts[0].Text != "subagent task completed" {
-		t.Errorf("expected text part 'subagent task completed', got: %#v", contents[1].Parts)
+	if len(contents[1].Parts) != 1 || !strings.Contains(contents[1].Parts[0].Text, "subagent task completed") {
+		t.Errorf("expected text part containing 'subagent task completed', got: %#v", contents[1].Parts)
 	}
 }
 

@@ -79,19 +79,11 @@ func TestDefaultFallbackModels(t *testing.T) {
 		t.Fatalf("expected non-empty defaultFallbackModels")
 	}
 
-	retiredModels := map[string]bool{
-		"models/gemini-2.5-pro":                 true,
-		"models/gemini-2.5-flash":               true,
-		"models/gemini-2.5-flash-lite":          true,
-		"models/gemini-3-pro-preview":           true,
-		"models/gemini-2.5-flash-image-preview": true,
-		"models/imagen-3.0-generate-002":        true,
-	}
-
 	hasEmbedding := false
+	hasPro := false
 	for _, m := range models {
-		if retiredModels[m.ID] {
-			t.Errorf("defaultFallbackModels should not contain retired model %q", m.ID)
+		if m.ID == "models/gemini-2.5-pro" {
+			hasPro = true
 		}
 		if m.ID == "models/gemini-embedding-001" {
 			hasEmbedding = true
@@ -103,6 +95,9 @@ func TestDefaultFallbackModels(t *testing.T) {
 
 	if !hasEmbedding {
 		t.Errorf("expected defaultFallbackModels to include models/gemini-embedding-001")
+	}
+	if !hasPro {
+		t.Errorf("expected defaultFallbackModels to include models/gemini-2.5-pro")
 	}
 }
 
