@@ -396,6 +396,17 @@ func defaultFallbackModels() []aistudio.Model {
 
 	return []aistudio.Model{
 		{
+			ID:               "models/gemini-2.5-pro",
+			Name:             "Gemini 2.5 Pro",
+			Description:      "Google AI Studio Gemini 2.5 Pro with thinking & multimodal reasoning",
+			Methods:          []string{"generateContent", "streamGenerateContent", "countTokens"},
+			InputTokenLimit:  1048576,
+			OutputTokenLimit: 65536,
+			ThinkingLevels:   []string{"low", "medium", "high"},
+			ThinkingBudget:   &aistudio.ThinkingBudget{Min: &minBudget, Max: &maxBudgetPro, CanDisable: &canDisableFalse},
+			Capabilities:     map[string]bool{"thinking": true, "search": true, "code_execution": true, "url_context": true, "function_calling": true, "structured_outputs": true},
+		},
+		{
 			ID:               "models/gemini-4-argon",
 			Name:             "Gemini 4 Argon",
 			Description:      "Google AI Studio Gemini 4 Argon next-generation model",

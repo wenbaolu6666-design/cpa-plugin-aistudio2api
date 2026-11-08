@@ -4,27 +4,27 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"strings"
-	"sync"
-	"sync/atomic"
-	"time"
 	"github.com/Mag1cFall/AIStudio2API/internal/api"
 	"github.com/Mag1cFall/AIStudio2API/internal/app"
 	"github.com/Mag1cFall/AIStudio2API/internal/config"
 	"github.com/Mag1cFall/AIStudio2API/internal/pluginabi"
 	"github.com/Mag1cFall/AIStudio2API/internal/pluginapi"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"time"
 )
 
 type HostCallFunc func(method string, payload []byte) ([]byte, error)
 
 type Plugin struct {
-	mu           sync.RWMutex
-	ctx          context.Context
-	cancel       context.CancelFunc
-	pluginCfg    PluginConfig
-	appCfg       config.Config
-	runtime      *app.PluginRuntime
-	hostCall     HostCallFunc
+	mu              sync.RWMutex
+	ctx             context.Context
+	cancel          context.CancelFunc
+	pluginCfg       PluginConfig
+	appCfg          config.Config
+	runtime         *app.PluginRuntime
+	hostCall        HostCallFunc
 	loginStateMu    sync.Mutex
 	loginStates     map[string]*loginSessionState
 	excludedMu      sync.RWMutex
