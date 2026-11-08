@@ -1005,6 +1005,12 @@ func responsesContents(raw json.RawMessage) ([]aistudio.Content, []string, error
 				item.CallID = item.ID
 			}
 			name := item.Name
+			if expectedName, ok := awaitingCalls[item.CallID]; ok {
+				if name == "" {
+					name = expectedName
+				}
+				delete(awaitingCalls, item.CallID)
+			}
 			switch item.Type {
 			case "local_shell_call_output":
 				if name == "" {
@@ -1025,6 +1031,19 @@ func responsesContents(raw json.RawMessage) ([]aistudio.Content, []string, error
 			output, media, err := functionResultParts(item.Output, false, openAIContentParts)
 			if err != nil {
 				return nil, nil, fmt.Errorf("%s: %w", item.Type, err)
+			}
+			if name == "" && len(awaitingCalls) == 0 {
+				text := string(output)
+				var obj map[string]any
+				if json.Unmarshal(output, &obj) == nil {
+					if r, ok := obj["result"].(string); ok && len(obj) == 1 {
+						text = r
+					} else if e, ok := obj["error"].(string); ok && len(obj) == 1 {
+						text = "Error: " + e
+					}
+				}
+				contents = append(contents, aistudio.Content{Role: aistudio.RoleUser, Parts: []aistudio.Part{{Text: text}}})
+				continue
 			}
 			contents = append(contents, aistudio.Content{Role: aistudio.RoleTool, Parts: append([]aistudio.Part{{FunctionResult: &aistudio.FunctionResult{
 				ID: item.CallID, Name: name, Content: output,

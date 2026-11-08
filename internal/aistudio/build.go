@@ -256,10 +256,8 @@ func encodeBuildPart(part Part) (map[string]any, error) {
 			signature = "skip_thought_signature_validator"
 		}
 	case part.FunctionResult != nil:
-		name := part.FunctionResult.Name
-		if name == "" {
-			wire["text"] = string(part.FunctionResult.Content)
-			break
+		if part.FunctionResult.Name == "" {
+			return nil, fmt.Errorf("function result 缺少名称且无法唯一关联调用")
 		}
 		response, err := buildJSONObject(part.FunctionResult.Content)
 		if err != nil {

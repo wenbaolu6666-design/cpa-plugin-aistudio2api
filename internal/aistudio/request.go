@@ -229,31 +229,9 @@ func linkFunctionResults(content Content, pendingCalls *[]FunctionCall) (Content
 		if matched < 0 && len(*pendingCalls) == 1 && (result.Name == "" || result.Name == (*pendingCalls)[0].Name) {
 			matched = 0
 		}
-		if matched < 0 && result.Name != "" {
-			for i, call := range *pendingCalls {
-				if call.Name == result.Name {
-					matched = i
-					break
-				}
-			}
-		}
 		if matched < 0 {
 			if result.Name == "" {
-				if !cloned {
-					content.Parts = slices.Clone(content.Parts)
-					cloned = true
-				}
-				text := string(result.Content)
-				var obj map[string]any
-				if json.Unmarshal(result.Content, &obj) == nil {
-					if r, ok := obj["result"].(string); ok && len(obj) == 1 {
-						text = r
-					} else if e, ok := obj["error"].(string); ok && len(obj) == 1 {
-						text = "Error: " + e
-					}
-				}
-				content.Parts[index] = Part{Text: text}
-				continue
+				return Content{}, fmt.Errorf("part %d: function result 缺少名称且无法唯一关联调用", index)
 			}
 			continue
 		}
